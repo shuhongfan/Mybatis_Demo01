@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shf.dao.EmployeeMapperPlus">
+    <resultMap id="MyEmp" type="com.shf.bean.Employee">
+<!--        定义主键-->
+        <id column="id" property="id"/>
+<!--        定义普通列-->
+        <result column="last_name" property="lastName"/>
+<!--        其他不指定的列会自动封装-->
+    </resultMap>
+    <select id="getEmpById" resultMap="MyEmp">
+        select * from tbl_employee where id=#{id};
+    </select>
+
+<!--    联合查询-->
+    <resultMap id="MyEmpPlus" type="com.shf.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="did" property="dept.id"/>
+        <result column="dept_name" property="dept.dept_name"/>
+    </resultMap>
+    <resultMap id="MyEmpPlus2" type="com.shf.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <association property="dept" javaType="com.shf.bean.Department">
+            <id column="did" property="id"/>
+            <result column="dept_name" property="dept_name"/>
+        </association>
+    </resultMap>
+
+    <select id="getEmpAndDept" resultMap="MyEmpPlus2">
+        select e.id,e.last_name,e.gender,e.email,e.d_id did,d.dept_name
+        from tbl_employee e left join tbl_dept d on e.d_id=d.id
+            where e.id=#{id};
+    </select>
+</mapper>
