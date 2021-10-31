@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--sql映射文件  配置每一个sql，以及sql的封装规则-->
+<!--        namespace名称空间  指定为接口的全类名-->
+<!--        id: sql唯一标识-->
+<!--        resultType： 返回值类型-->
+<!--        #{id} 从传递过来的参数取出id值-->
+<mapper namespace="com.shf.dao.EmpMapper">
+    <!--
+    单个参数：mybatis不会做特殊处理
+    #{参数名}  取出参数值
+
+
+    多个参数：mybatis会做特殊处理
+    多个参数会被封装成为一个map
+    key  param1...paramN或者参数的索引也可以
+    value  传入的参数值
+    #{} 就是从map中获取指定key的值
+
+    多个参数下推荐 命名参数
+    多个参数会被封装一个map
+        key 使用@Param注解指定的值
+            value 参数值
+    #{指定Key} 取出对应的参数值
+
+    POJO 如果多个参数正好是我们业务逻辑的模型数据 我们可以直接传入POJO
+    #{属性名}  取出传入的pojo的属性值
+
+    Map： 如果多个参数不是业务模型中的数据，没有对应的POJO，为了方便，我们也可以传入map
+    #{key} 取出map中对应的值
+
+    如果多个参数不是业务模型中的数据，但是经常要使用，推荐来编写一个To（Transfer Object）数据传输对象
+    Page{
+        int index;
+        int size;
+    }
+
+   public Employee getEmp(@Param("id") Integer id,String lastName);
+   取值 id===>#{id/param1}  lastName===>#{param2}
+
+   public Employee getEmp(Integer id,@Param("e") Employee emp);
+   取值 id===>#{param1}  lastName===>#{param2.lastName/e.lastName}
+
+   特别注意 如果是Collection（list、set） 类型或者数组，也会特殊处理，也就是把传入的list或者数组封装在map中
+     key： collection，如果是List还可以使用key(list),数组Array
+   public Employee getEmployeeById(List<Integer> ids);
+   取值： 取出第一个id值：  #{list[0]}
+
+   #{}:是预编译形式，将参数设置到sql语句中，preparedstatement防止sql注入
+   ${} 取出值直接拼接在sql语句中 ；会有安全问题
+   大多数情况下，我们取参数的值都应该使用#{}
+   原生jdbc不支持占位符的地方我们可以使用${}进行取值
+   比如分表、排序、按照年份进行分表拆分
+   select * from ${year}_salary where xxx
+   select * from tbl_employee order by ${f_name} ${order}
+
+   #{} 更丰富的用法  规定参数的一些规则
+   JavaType通常需要在某种特定的条件下被设置
+-->
+    <select id="getEmpByLastNameLikeReturnMap" resultType="com.shf.bean.Employee">
+        select * from tbl_employee where last_name like #{lastName}
+    </select>
+
+    <select id="getEmpByIdReturnMap" resultType="map">
+        select * from tbl_employee where id=#{id}
+    </select>
+
+<!--    resultType  如果返回的是一个集合，要写集合中元素的类型-->
+    <select id="getEmpsByLastNameLike" resultType="com.shf.bean.Employee">
+        select * from tbl_employee where last_name like #{lastName}
+    </select>
+
+    <select id="getEmpByMap" resultType="com.shf.bean.Employee">
+        select * from ${tableName} where id=#{id} and last_name=#{lastName}
+    </select>
+
+    <select id="getEmpByIdAndLastName" resultType="com.shf.bean.Employee">
+        select * from tbl_employee where id=#{id} and last_name=#{lastName}
+    </select>
+
+    <select id="getEmployeeById" resultType="emp" databaseId="mysql">
+        select * from tbl_employee where id = #{id}
+    </select>
+
+<!--    获取自增主键的值-->
+<!--    mysql支持自增主键 mybatis利用statement.getGenreatedKeys-->
+<!--    useGeneratedKeys="true"  使用自增主键值-->
+<!--    keyProperty 指定对的主键值，也就是mybatis获取到主键之后，将这个值封装给javabean的哪个属性-->
+    <insert id="addEmp" parameterType="com.shf.bean.Employee"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        insert into tbl_employee(last_name,email,gender)
+            values (#{lastName},#{email},#{gender})
+    </insert>
+
+    <update id="updateEmp" parameterType="com.shf.bean.Employee">
+        update tbl_employee
+            set last_name=#{lastName},email=#{email},gender=#{gender}
+            where id=#{id}
+    </update>
+
+    <delete id="deleteEmp">
+        delete from tbl_employee where id=#{id}
+    </delete>
+</mapper>

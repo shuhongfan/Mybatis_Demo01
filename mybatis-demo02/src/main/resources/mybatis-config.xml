@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!--    引入properties配置文件-->
+<!--    resource  引入类路径下资源-->
+<!--    url  引入网络路径或磁盘路径下-->
+    <properties resource="db.properties" />
+
+<!--    settings包含很多重要的设置项-->
+<!--    setting 用来设置每一个设置项  name设置项名 value设置值-->
+    <settings>
+<!--        是否开启驼峰命名自动映射-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+<!--        延迟懒加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+
+
+<!--    typeAliases别名处理器 可以为我们的java类型起别名    别名不区分大小写-->
+<!--    type指定要起别名的类的全类名；默认别名就是类名小写；employee-->
+<!--    alias 新的别名-->
+    <typeAliases>
+        <typeAlias type="com.shf.bean.Employee" alias="emp"/>
+<!--        为某个包下的所有类批量起别名      name:指定包名-->
+<!--        为当前包下一级下面所有的后代包的每一个类都起一个默认别名  类名小写-->
+        <package name="com.shf.bean.bean"/>
+<!--        批量起别名的情况下 使用@Alias注解为某个指定新的别名-->
+    </typeAliases>
+
+<!--    environments 为mybatis配置多种环境-->
+<!--    environment 配置一个具体的环境信息 必须有两个标签-->
+<!--    id  代表房前环境的唯一标识-->
+<!--    transactionManager  事务管理器-->
+<!--    dataSource  数据源  数据源类型-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+        <environment id="test">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${orcl.driver}"/>
+                <property name="url" value="${orcl.url}"/>
+                <property name="username" value="${orcl.username}"/>
+                <property name="password" value="${orcl.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+<!--    databaseIdProvider 支持多数据库厂商-->
+    <databaseIdProvider type="DB_VENDOR">
+<!--        为不通过的数据库厂商起别名-->
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlserver"/>
+    </databaseIdProvider>
+
+<!--    将sql映射文件注册在全局配置文件中-->
+<!--    写好的EmployeeMapper.xml 注册到全局配置文件中-->
+    <mappers>
+<!--        注册配置文件-->
+        <mapper resource="EmpMapper.xml"/>
+<!--        注册接口-->
+<!--        有sql映射文件 映射文件必须和接口同名，并且放在与接口同一目录下-->
+<!--        没有sql文件，sql利用注解写在接口上-->
+        <mapper class="com.shf.dao.EmpMapperAnnotation"/>
+        
+<!--        批量注册-->
+<!--        <package name="com.shf.dao"/>-->
+
+<!--        配置EmpMapperPlus.xml-->
+        <mapper resource="EmpMapperPlus.xml"/>
+        <mapper resource="DepartmentMapper.xml"/>
+        <mapper resource="EmployeeMapperDynamicSQL.xml"/>
+    </mappers>
+</configuration>

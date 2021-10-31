@@ -37,4 +37,5 @@
         from tbl_employee e left join tbl_dept d on e.d_id=d.id
             where e.id=#{id};
     </select>
+
 </mapper>
